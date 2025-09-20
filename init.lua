@@ -228,6 +228,48 @@ vim.opt.rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+
+  {
+    'nvim-treesitter/nvim-treesitter',
+    branch = 'master',
+    lazy = false,
+    build = ':TSUpdate',
+  },
+  {
+    'iamcco/markdown-preview.nvim',
+    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    build = 'cd app && yarn install',
+    init = function()
+      vim.g.mkdp_filetypes = { 'markdown' }
+    end,
+    ft = { 'markdown' },
+  },
+  {
+    'jbyuki/nabla.nvim',
+    dependencies = {
+      'nvim-neo-tree/neo-tree.nvim',
+      'williamboman/mason.nvim',
+    },
+    lazy = true,
+
+    config = function()
+      require('nvim-treesitter.configs').setup {
+        ensure_installed = { 'latex' },
+        auto_install = true,
+        sync_install = false,
+      }
+    end,
+
+    keys = function()
+      return {
+        {
+          '<leader>p',
+          ':lua require("nabla").popup()<cr>',
+          desc = 'NablaPopUp',
+        },
+      }
+    end,
+  },
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
@@ -617,7 +659,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -845,11 +887,30 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- vim.cmd.colorscheme 'tokyonight-night'
 
       -- You can configure highlights by doing something like:
+      --vim.cmd.hi 'Comment gui=none'
+    end,
+  },
+  {
+    'Mofiqul/vscode.nvim',
+    --init = function()
+    --  vim.cmd.colorscheme 'vscode'
+    --  vim.o.background = 'light'
+    --  vim.cmd.hi 'Comment gui=none'
+    --end,
+  },
+  {
+    'preservim/vim-colors-pencil',
+    init = function()
+      vim.cmd.colorscheme 'pencil'
+      vim.o.background = 'light'
       vim.cmd.hi 'Comment gui=none'
     end,
+  },
+  {
+    'github/copilot.vim',
   },
 
   -- Highlight todo, notes, etc in comments
