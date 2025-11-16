@@ -256,37 +256,21 @@ require('lazy').setup({
   {
     'iamcco/markdown-preview.nvim',
     cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
-    build = 'cd app && yarn install',
+    build = 'cd app && npm install',
     init = function()
       vim.g.mkdp_filetypes = { 'markdown' }
+      vim.g.mkdp_echo_preview_url = 1
     end,
     ft = { 'markdown' },
   },
   {
-    'jbyuki/nabla.nvim',
-    dependencies = {
-      'nvim-neo-tree/neo-tree.nvim',
-      'williamboman/mason.nvim',
-    },
-    lazy = true,
-
-    config = function()
-      require('nvim-treesitter.configs').setup {
-        ensure_installed = { 'latex' },
-        auto_install = true,
-        sync_install = false,
-      }
-    end,
-
-    keys = function()
-      return {
-        {
-          '<leader>p',
-          ':lua require("nabla").popup()<cr>',
-          desc = 'NablaPopUp',
-        },
-      }
-    end,
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' }, -- if you use the mini.nvim suite
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.icons' }, -- if you use standalone mini plugins
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = {},
   },
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
@@ -1041,7 +1025,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
