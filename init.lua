@@ -265,6 +265,8 @@ require('lazy').setup({
     init = function()
       vim.g.mkdp_filetypes = { 'markdown' }
       vim.g.mkdp_echo_preview_url = 1
+      vim.g.mkdp_auto_start = 0
+      vim.g.mkdp_open_to_the_world = 1
     end,
     ft = { 'markdown' },
   },
@@ -704,7 +706,25 @@ require('lazy').setup({
       local servers = {
         clangd = {},
         -- gopls = {},
-        pyright = {},
+        ruff = {
+          on_attach = function(client, _)
+            -- Disable formatting capability for pyright
+            client.server_capabilities.hoverProvider = false
+          end,
+        },
+        pyright = {
+          settings = {
+            pyright = {
+              disableOrganizeImports = true, -- Ruff does imports
+            },
+            python = {
+              analysis = {
+                typeCheckingMode = 'strict', -- or "basic", "standard"
+                -- DO NOT ignore = {'*'} if you want type checking
+              },
+            },
+          },
+        },
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -783,19 +803,24 @@ require('lazy').setup({
     end,
   },
   {
-    'NeogitOrg/neogit',
+    'kdheepak/lazygit.nvim',
     lazy = true,
-    dependencies = {
-      'nvim-lua/plenary.nvim', -- required
-      'sindrets/diffview.nvim', -- optional - Diff integration
-
-      -- Only one of these is needed.
-      'nvim-telescope/telescope.nvim', -- optional
-      'ibhagwan/fzf-lua', -- optional
-      'nvim-mini/mini.pick', -- optional
-      'folke/snacks.nvim', -- optional
+    cmd = {
+      'LazyGit',
+      'LazyGitConfig',
+      'LazyGitCurrentFile',
+      'LazyGitFilter',
+      'LazyGitFilterCurrentFile',
     },
-    cmd = 'Neogit',
+    -- optional for floating window border decoration
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    -- setting the keybinding for LazyGit with 'keys' is recommended in
+    -- order to load the plugin when the command is run for the first time
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
   },
   { -- Autoformat
     'stevearc/conform.nvim',
