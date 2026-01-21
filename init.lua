@@ -706,35 +706,8 @@ require('lazy').setup({
       local servers = {
         clangd = {},
         -- gopls = {},
-        ruff = {
-          on_attach = function(client, _)
-            -- Disable formatting capability for pyright
-            client.server_capabilities.hoverProvider = false
-          end,
-        },
-        pyright = {
-          settings = {
-            pyright = {
-              disableOrganizeImports = true, -- Ruff does imports
-            },
-            python = {
-              analysis = {
-                typeCheckingMode = 'strict', -- or "basic", "standard"
-                -- DO NOT ignore = {'*'} if you want type checking
-              },
-            },
-          },
-        },
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
-
+        ruff = {},
+        ty = {},
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -786,6 +759,11 @@ require('lazy').setup({
       }
     end,
   },
+  -- zen mode
+  {
+    'folke/zen-mode.nvim',
+  },
+  -- Git diff viewer
   {
     'sindrets/diffview.nvim',
   },
@@ -802,6 +780,7 @@ require('lazy').setup({
       }
     end,
   },
+  -- Git add/commit etc
   {
     'kdheepak/lazygit.nvim',
     lazy = true,
