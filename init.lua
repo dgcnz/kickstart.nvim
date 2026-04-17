@@ -258,18 +258,18 @@ require('lazy').setup({
     lazy = false,
     build = ':TSUpdate',
   },
-  {
-    'iamcco/markdown-preview.nvim',
-    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
-    build = 'cd app && npm install',
-    init = function()
-      vim.g.mkdp_filetypes = { 'markdown' }
-      vim.g.mkdp_echo_preview_url = 1
-      vim.g.mkdp_auto_start = 0
-      vim.g.mkdp_open_to_the_world = 1
-    end,
-    ft = { 'markdown' },
-  },
+  -- {
+  --   'iamcco/markdown-preview.nvim',
+  --   cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+  --   build = 'cd app && npm install',
+  --   init = function()
+  --     vim.g.mkdp_filetypes = { 'markdown' }
+  --     vim.g.mkdp_echo_preview_url = 1
+  --     vim.g.mkdp_auto_start = 0
+  --     vim.g.mkdp_open_to_the_world = 1
+  --   end,
+  --   ft = { 'markdown' },
+  -- },
   {
     'MeanderingProgrammer/render-markdown.nvim',
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' }, -- if you use the mini.nvim suite
@@ -759,6 +759,13 @@ require('lazy').setup({
       }
     end,
   },
+  {
+    'folke/snacks.nvim',
+    priority = 1000,
+    lazy = false,
+    ---@type snacks.Config
+    opts = {},
+  },
   -- zen mode
   {
     'folke/zen-mode.nvim',
@@ -766,6 +773,95 @@ require('lazy').setup({
   -- Git diff viewer
   {
     'sindrets/diffview.nvim',
+  },
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    branch = 'v3.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'MunifTanjim/nui.nvim',
+      'nvim-tree/nvim-web-devicons', -- optional, but recommended
+    },
+    lazy = false, -- neo-tree will lazily load itself
+    opts = {
+      window = {
+        mappings = {
+          ['Y'] = function(state)
+            local node = state.tree:get_node()
+            if not node or not node.id then
+              vim.notify('No node selected.', vim.log.levels.WARN)
+              return
+            end
+
+            if vim.fn.has 'clipboard' == 0 then
+              vim.notify('System clipboard is not available.', vim.log.levels.ERROR)
+              return
+            end
+
+            local filepath = node:get_id()
+            local filename = node.name
+            local modify = vim.fn.fnamemodify
+
+            local choices = {
+              { label = 'Absolute path', value = filepath },
+              { label = 'Path relative to CWD', value = modify(filepath, ':.') },
+              { label = 'Path relative to HOME', value = modify(filepath, ':~') },
+              { label = 'Filename', value = filename },
+              { label = 'Filename without extension', value = modify(filename, ':r') },
+              { label = 'Extension of the filename', value = modify(filename, ':e') },
+            }
+
+            -- THE CHANGE IS ON THIS LINE:
+            -- Instead of vim.ui.select, we call the snacks picker directly.
+            require('snacks').picker.select(choices, {
+              prompt = 'Choose to copy to clipboard:',
+              format_item = function(item)
+                return string.format('%-30s %s', item.label, item.value)
+              end,
+            }, function(choice)
+              if not choice then
+                vim.notify('Copy cancelled.', vim.log.levels.INFO)
+                return
+              end
+
+              local value_to_copy = choice.value
+
+              vim.fn.setreg('+', value_to_copy)
+              vim.notify('Copied to clipboard: ' .. value_to_copy)
+            end)
+          end,
+        },
+      },
+    },
+  },
+  {
+    'antosha417/nvim-lsp-file-operations',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-neo-tree/neo-tree.nvim', -- makes sure that this loads after Neo-tree.
+    },
+    config = function()
+      require('lsp-file-operations').setup()
+    end,
+  },
+  {
+    's1n7ax/nvim-window-picker',
+    version = '2.*',
+    config = function()
+      require('window-picker').setup {
+        filter_rules = {
+          include_current_win = false,
+          autoselect_one = true,
+          -- filter using buffer options
+          bo = {
+            -- if the file type is one of following, the window will be ignored
+            filetype = { 'neo-tree', 'neo-tree-popup', 'notify' },
+            -- if the buffer type is one of following, the window will be ignored
+            buftype = { 'terminal', 'quickfix' },
+          },
+        },
+      }
+    end,
   },
   {
     'kevinhwang91/nvim-ufo',
@@ -1024,7 +1120,53 @@ require('lazy').setup({
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'hkupty/iron.nvim',
+    config = function()
+      local iron = require 'iron.core'
 
+      iron.setup {
+        config = {
+          -- Whether a repl should be discarded or not
+          scratch_repl = true,
+          -- Your repl definitions come here
+          repl_definition = {
+            sh = {
+              -- Can be a table or a function that
+              -- returns a table (see below)
+              command = { 'zsh' },
+            },
+          },
+          -- How the repl window will be displayed
+          -- See below for more information
+          --repl_open_cmd = require('iron.view').bottom(40),
+          repl_open_cmd = require('iron.view').split.vertical.rightbelow '%40',
+        },
+        -- Iron doesn't set keymaps by default anymore.
+        -- You can set them here or manually add keymaps to the functions in iron.core
+        keymaps = {
+          send_motion = '<space>sc',
+          visual_send = '<space>sc',
+          send_file = '<space>sf',
+          send_line = '<space>sl',
+          send_mark = '<space>sm',
+          mark_motion = '<space>mc',
+          mark_visual = '<space>mc',
+          remove_mark = '<space>md',
+          cr = '<space>s<cr>',
+          interrupt = '<space>s<space>',
+          exit = '<space>sq',
+          clear = '<space>cl',
+        },
+        -- If the highlight is on, you can change how it looks
+        -- For the available options, check nvim_set_hl
+        highlight = {
+          italic = true,
+        },
+        ignore_blank_lines = true, -- ignore blank lines when sending visual select lines
+      }
+    end,
+  },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1101,7 +1243,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  require 'kickstart.plugins.neo-tree',
+  -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
