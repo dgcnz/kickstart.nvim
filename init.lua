@@ -667,14 +667,6 @@ require('lazy').setup({
     ---@type snacks.Config
     opts = {},
   },
-  -- zen mode
-  {
-    'folke/zen-mode.nvim',
-  },
-  -- Git diff viewer
-  {
-    'sindrets/diffview.nvim',
-  },
   {
     'nvim-neo-tree/neo-tree.nvim',
     branch = 'v3.x',
@@ -716,9 +708,7 @@ require('lazy').setup({
             -- Instead of vim.ui.select, we call the snacks picker directly.
             require('snacks').picker.select(choices, {
               prompt = 'Choose to copy to clipboard:',
-              format_item = function(item)
-                return string.format('%-30s %s', item.label, item.value)
-              end,
+              format_item = function(item) return string.format('%-30s %s', item.label, item.value) end,
             }, function(choice)
               if not choice then
                 vim.notify('Copy cancelled.', vim.log.levels.INFO)
@@ -741,9 +731,7 @@ require('lazy').setup({
       'nvim-lua/plenary.nvim',
       'nvim-neo-tree/neo-tree.nvim', -- makes sure that this loads after Neo-tree.
     },
-    config = function()
-      require('lsp-file-operations').setup()
-    end,
+    config = function() require('lsp-file-operations').setup() end,
   },
   {
     's1n7ax/nvim-window-picker',
@@ -771,9 +759,7 @@ require('lazy').setup({
       vim.opt.foldlevel = 99
       vim.opt.foldlevelstart = 99
       require('ufo').setup {
-        provider_selector = function(bufnr, filetype, buftype)
-          return { 'treesitter', 'indent' }
-        end,
+        provider_selector = function(bufnr, filetype, buftype) return { 'treesitter', 'indent' } end,
       }
     end,
   },
@@ -968,38 +954,6 @@ require('lazy').setup({
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
     },
-  },
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
-        styles = {
-          comments = { italic = false }, -- Disable italics in comments
-        },
-      }
-
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      -- vim.cmd.colorscheme 'tokyonight-night'
-
-      -- You can configure highlights by doing something like:
-      --vim.cmd.hi 'Comment gui=none'
-    end,
-  },
-  {
-    'Mofiqul/vscode.nvim',
-    --init = function()
-    --  vim.cmd.colorscheme 'vscode'
-    --  vim.o.background = 'light'
-    --  vim.cmd.hi 'Comment gui=none'
-    --end,
   },
   {
     'preservim/vim-colors-pencil',
