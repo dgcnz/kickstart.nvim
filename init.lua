@@ -795,7 +795,7 @@ require('lazy').setup({
     },
   },
   {
-    'epwalsh/obsidian.nvim',
+    'obsidian-nvim/obsidian.nvim',
     version = '*', -- recommended, use latest release instead of latest commit
     lazy = true,
     -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
@@ -808,11 +808,11 @@ require('lazy').setup({
     },
     dependencies = {
       'nvim-lua/plenary.nvim',
-      'hrsh7th/nvim-cmp',
       'nvim-telescope/telescope.nvim',
       'nvim-treesitter/nvim-treesitter',
     },
     opts = {
+      legacy_commands = false,
       workspaces = {
         {
           name = 'personal',
@@ -822,7 +822,7 @@ require('lazy').setup({
       ui = {
         enable = false,
       },
-      disable_frontmatter = true,
+      frontmatter = { enabled = false },
     },
   },
   { -- Autoformat
@@ -975,6 +975,15 @@ require('lazy').setup({
   },
   {
     'github/copilot.vim',
+    init = function()
+      vim.g.copilot_no_tab_map = true
+      vim.keymap.set('i', '<M-l>', 'copilot#Accept("\\<CR>")', {
+        expr = true,
+        replace_keycodes = false,
+        silent = true,
+        desc = 'Accept Copilot suggestion',
+      })
+    end,
   },
 
   -- Highlight todo, notes, etc in comments
