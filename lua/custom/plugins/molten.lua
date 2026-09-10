@@ -54,9 +54,35 @@ return {
       -- Other options exist (virtual-text output, auto-open, wrapping);
       -- see `:h molten` before enabling, they interact with image rendering.
     end,
+    config = function()
+      -- Molten has no "run the whole notebook" command: MoltenReevaluateAll only
+      -- re-runs cells it already knows about. This defines every `# %%` block as a
+      -- cell and evaluates it, which is the "restart & run all" you actually want.
+      vim.api.nvim_create_user_command('MoltenRunAll', function()
+        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+        local starts = {}
+        for i, l in ipairs(lines) do
+          if l:match '^#%s*%%%%' then
+            table.insert(starts, i)
+          end
+        end
+        if #starts == 0 then
+          vim.notify('MoltenRunAll: no `# %%` cells in this buffer', vim.log.levels.WARN)
+          return
+        end
+        for idx, s in ipairs(starts) do
+          local e = (starts[idx + 1] or (#lines + 1)) - 1
+          vim.fn.MoltenEvaluateRange(s, e)
+        end
+        vim.notify(('MoltenRunAll: queued %d cells'):format(#starts))
+      end, { desc = 'Molten: evaluate every `# %%` cell in the buffer' })
+    end,
+
     -- <leader>j for "jupyter". <leader>m is already taken by iron.nvim's marks.
     keys = {
       { '<leader>ji', '<cmd>MoltenInit<cr>', desc = 'Molten: [i]nit kernel' },
+      { '<leader>ja', '<cmd>MoltenRunAll<cr>', desc = 'Molten: run [a]ll `# %%` cells' },
+      { '<leader>jA', '<cmd>MoltenReevaluateAll<cr>', desc = 'Molten: re-evaluate [A]ll known cells' },
       { '<leader>je', '<cmd>MoltenEvaluateOperator<cr>', desc = 'Molten: [e]valuate operator' },
       { '<leader>jl', '<cmd>MoltenEvaluateLine<cr>', desc = 'Molten: evaluate [l]ine' },
       { '<leader>jr', '<cmd>MoltenReevaluateCell<cr>', desc = 'Molten: [r]e-evaluate cell' },
