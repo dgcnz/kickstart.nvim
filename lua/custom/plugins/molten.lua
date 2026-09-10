@@ -3,7 +3,7 @@
 -- Two environments are involved, on purpose (this is molten's documented layout):
 --   * ~/.venvs/nvim  runs molten's own plugin code (pynvim + jupyter_client).
 --                    It never runs your code.
---   * a kernelspec   runs your code. `flow` -> flow_playground/.venv
+--   * a kernelspec   runs your code. `flow` -> playground/flow_tutorial/.venv
 --                    Register more with:
 --                      uv pip install --python /path/to/.venv/bin/python ipykernel
 --                      /path/to/.venv/bin/python -m ipykernel install --user --name NAME
