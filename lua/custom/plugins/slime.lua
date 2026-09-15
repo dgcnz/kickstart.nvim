@@ -13,8 +13,8 @@
 --   zellij attach -c work        # zellij ON the node, not the login node
 --   nvim notebook.py             # <leader>cr, then <leader>cc
 --
--- Output lands in the REPL pane, not the buffer. For plots inline in the
--- buffer, use molten (<leader>j...).
+-- Output lands in the REPL pane, not the buffer. Plots drawn by the REPL are
+-- rendered by the terminal itself (kitty graphics), not by nvim.
 
 local in_zellij = vim.env.ZELLIJ ~= nil and vim.env.ZELLIJ ~= ''
 
@@ -72,7 +72,7 @@ return {
         end
       end, { desc = 'Open a REPL beside this buffer and attach slime to it' })
     end,
-    -- <leader>c for "code". <leader>j is molten, <leader>s is telescope.
+    -- <leader>c for "code". <leader>s is telescope.
     keys = {
       { '<leader>cr', '<cmd>Repl<cr>', desc = 'Slime: open [r]epl and attach' },
       { '<leader>cc', '<Plug>SlimeSendCell', desc = 'Slime: send [c]ell (# %%)' },
