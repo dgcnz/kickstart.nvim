@@ -1,6 +1,12 @@
 -- Inline images in the terminal, via the kitty graphics protocol.
 -- Needs a terminal that speaks it (kitty, ghostty) -- Alacritty does not.
 -- zellij >= 0.45 passes the protocol through.
+--
+-- On the cluster ImageMagick lives behind an lmod module, but the binary is
+-- RPATH-linked, so putting it on PATH is enough -- no `module load` required.
+-- The path simply does not exist elsewhere, so the guard below no-ops on mac.
+local MAGICK_BIN =
+  '/sw/rev/25.04/rome_mofed_cuda80_rocky8/linux-rocky8-zen/gcc-8.5.0/imagemagick-7.1.1-39-o2sod7chb4phkvblh2usd6zwqnzvooaj/bin'
 
 local uv = vim.uv or vim.loop
 
@@ -56,6 +62,11 @@ return {
   '3rd/image.nvim',
   build = false, -- skip luarocks; magick_cli below shells out to imagemagick
   ft = { 'markdown', 'vimwiki' },
+  init = function()
+    if vim.fn.isdirectory(MAGICK_BIN) == 1 and not vim.env.PATH:find(MAGICK_BIN, 1, true) then
+      vim.env.PATH = MAGICK_BIN .. ':' .. vim.env.PATH
+    end
+  end,
   opts = {
     processor = 'magick_cli',
     backend = 'kitty',
