@@ -112,11 +112,31 @@ vim.o.showmode = false
 
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
---  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
 vim.schedule(function()
-  vim.g.clipboard = 'osc52'
-  vim.o.clipboard = 'unnamedplus'
+  if vim.fn.has 'macunix' == 1 then
+    -- Local mac: pbcopy/pbpaste are autodetected, so the system clipboard
+    -- works in both directions and plain `p` can read it.
+    vim.o.clipboard = 'unnamedplus'
+  else
+    -- Remote (cluster). OSC52 can WRITE the mac clipboard through ssh and any
+    -- number of nested zellij layers, but it can never READ it: zellij drops
+    -- the query unless dangerously_enable_paste_buffer_read is on. With
+    -- clipboard=unnamedplus every `p` therefore fired a read that stalled ~11s
+    -- on "Waiting for OSC 52 response from the terminal".
+    --
+    -- So leave 'clipboard' unset here: plain `p` uses vim's own registers,
+    -- `"+y` still pushes to the mac clipboard, and Cmd+V still pastes in.
+    local osc52 = require 'vim.ui.clipboard.osc52'
+    local function last_yank()
+      return vim.split(vim.fn.getreg '"', '\n')
+    end
+    vim.g.clipboard = {
+      name = 'osc52',
+      copy = { ['+'] = osc52.copy '+', ['*'] = osc52.copy '*' },
+      paste = { ['+'] = last_yank, ['*'] = last_yank },
+    }
+  end
 end)
 
 -- Enable break indent
