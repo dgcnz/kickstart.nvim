@@ -126,8 +126,18 @@ vim.schedule(function()
     -- on "Waiting for OSC 52 response from the terminal".
     --
     -- So leave 'clipboard' unset here: plain `p` uses vim's own registers,
-    -- `"+y` still pushes to the mac clipboard, and Cmd+V still pastes in.
+    -- and Cmd+V still pastes in. Plain `y` is mirrored to the mac clipboard by
+    -- the TextYankPost autocmd below; `"+y` goes through g:clipboard.
     local osc52 = require 'vim.ui.clipboard.osc52'
+    local copy_plus = osc52.copy '+'
+    vim.api.nvim_create_autocmd('TextYankPost', {
+      desc = 'Mirror plain yanks to the mac clipboard via OSC52',
+      callback = function()
+        if vim.v.event.operator == 'y' and vim.v.event.regname == '' then
+          copy_plus(vim.v.event.regcontents)
+        end
+      end,
+    })
     local function last_yank()
       return vim.split(vim.fn.getreg '"', '\n')
     end
