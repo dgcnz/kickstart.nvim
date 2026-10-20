@@ -149,6 +149,9 @@ vim.schedule(function()
   end
 end)
 
+-- Use theme RGB colors consistently through SSH and Zellij.
+vim.o.termguicolors = true
+
 -- Enable break indent
 vim.o.breakindent = true
 
