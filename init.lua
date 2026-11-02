@@ -836,8 +836,8 @@ require('lazy').setup({
       -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
       -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/*.md"
       -- refer to `:h file-pattern` for more examples
-      'BufReadPre /Users/dgcnz/Documents/Obsidian Vault/*.md',
-      'BufNewFile /Users/dgcnz/Documents/Obsidian Vault/*.md',
+      'BufReadPre ' .. vim.fn.expand '~/vault/*.md',
+      'BufNewFile ' .. vim.fn.expand '~/vault/*.md',
     },
     dependencies = {
       'nvim-lua/plenary.nvim',
@@ -849,7 +849,7 @@ require('lazy').setup({
       workspaces = {
         {
           name = 'personal',
-          path = '~/Documents/Obsidian Vault/',
+          path = '~/vault/',
         },
       },
       ui = {
